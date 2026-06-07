@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Ultimate Power Suite</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js for Traffic Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Marked.js for README Live Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Lucide Icons for Cyberpunk HUD Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation Menu -->
+        <aside class="app-sidebar glass-panel">
+            <div class="sidebar-brand">
+                <div class="brand-glow"></div>
+                <div class="brand-icon">
+                    <i data-lucide="shield-alert" style="color: white; width: 24px; height: 24px;"></i>
+                </div>
+                <div>
+                    <h2>GH Power Suite</h2>
+                    <span>v2.0 Premium Cockpit</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-target="panel-profile">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Profile HUD & Auditor</span>
+                </button>
+                <button class="nav-item" data-target="panel-follow">
+                    <i data-lucide="users-round"></i>
+                    <span>Follow / Unfollow</span>
+                </button>
+                <button class="nav-item" data-target="panel-booster">
+                    <i data-lucide="calendar-days"></i>
+                    <span>Contribution Booster</span>
+                </button>
+                <button class="nav-item" data-target="panel-repos">
+                    <i data-lucide="folder-git2"></i>
+                    <span>Repos & Traffic HUD</span>
+                </button>
+                <button class="nav-item" data-target="panel-readme">
+                    <i data-lucide="file-edit"></i>
+                    <span>README Builder</span>
+                </button>
+                <button class="nav-item" data-target="panel-issues">
+                    <i data-lucide="check-square"></i>
+                    <span>Issue & PR Triage</span>
+                </button>
+                <button class="nav-item" data-target="panel-gists">
+                    <i data-lucide="star"></i>
+                    <span>Gists & Stars Clean</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="btn-open-token-modal" class="btn btn-secondary">
+                    <i data-lucide="key-round"></i> Manage Token
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Viewport -->
+        <main class="app-main">
+            <!-- Header HUD bar -->
+            <header class="app-header glass-panel">
+                <div class="header-left">
+                    <h1 id="page-title">Profile HUD & Scope Auditor</h1>
+                    <p id="page-subtitle" style="font-size: 0.8rem; color: var(--text-muted);">Check Personal Access Token scopes and profile metrics.</p>
+                </div>
+                <div class="header-right">
+                    <div id="api-limit-pill" class="api-limit-pill">
+                        <i data-lucide="zap"></i>
+                        <span>API Remaining: <strong id="api-limit-val">5000/5000</strong></span>
+                    </div>
+                    <div id="token-status" class="token-status-pill">
+                        <span id="token-status-icon"><i data-lucide="shield-alert"></i></span>
+                        <span id="token-status-text">Disconnected</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TABBED WORKSPACES -->
+            <div class="panel-container">
+                
+                <!-- Tab 1: Profile HUD & Auditor -->
+                <div id="panel-profile" class="tab-panel active">
+                    <div class="profile-layout">
+                        <!-- Left Panel: User Stats Card -->
+                        <div class="glass-panel profile-card">
+                            <div class="profile-cover"></div>
+                            <div class="profile-info-block">
+                                <img id="user-avatar" class="profile-avatar" src="https://github.com/identicons/guest.png" alt="Avatar">
+                                <h2 id="user-name">Guest User</h2>
+                                <a id="user-profile-url" href="#" target="_blank" class="profile-link">@guest</a>
+                                <p id="user-bio" class="profile-bio">No GitHub account synced. Please load your Personal Access Token in settings.</p>
+                                
+                                <div class="profile-stats-row">
+                                    <div class="stat-box">
+                                        <span class="num" id="stat-repos-count">0</span>
+                                        <span class="lbl">Repositories</span>
+                                    </div>
+                                    <div class="stat-box">
+                                        <span class="num" id="stat-followers-count">0</span>
+                                        <span class="lbl">Followers</span>
+                                    </div>
+                                    <div class="stat-box">
+                                        <span class="num" id="stat-following-count">0</span>
+                                        <span class="lbl">Following</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Token Scope Auditor & Languages -->
+                        <div class="auditor-grid">
+                            <!-- Scopes Auditor Card -->
+                            <div class="glass-panel auditor-card">
+                                <div class="panel-title">
+                                    <i data-lucide="shield-check" style="color: var(--secondary);"></i> PAT Scopes Auditor
+                                </div>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+                                    Below are the scopes parsed from your Personal Access Token and what dashboard modules they unlock.
+                                </p>
+                                <div class="scopes-table">
+                                    <div class="scope-row">
+                                        <div class="scope-meta">
+                                            <strong>user:follow</strong>
+                                            <span>Required to follow or unfollow users.</span>
+                                        </div>
+                                        <span id="scope-follow-badge" class="scope-badge locked">Locked</span>
+                                    </div>
+                                    <div class="scope-row">
+                                        <div class="scope-meta">
+                                            <strong>repo</strong>
+                                            <span>Full repo access (Booster, Repo Listing, Traffic HUD).</span>
+                                        </div>
+                                        <span id="scope-repo-badge" class="scope-badge locked">Locked</span>
+                                    </div>
+                                    <div class="scope-row">
+                                        <div class="scope-meta">
+                                            <strong>delete_repo</strong>
+                                            <span>Required for the Repository Bulk Deletion tool.</span>
+                                        </div>
+                                        <span id="scope-delete-badge" class="scope-badge locked">Locked</span>
+                                    </div>
+                                    <div class="scope-row">
+                                        <div class="scope-meta">
+                                            <strong>gist</strong>
+                                            <span>Required for the Bulk Gist Manager.</span>
+                                        </div>
+                                        <span id="scope-gist-badge" class="scope-badge locked">Locked</span>
+                                    </div>
+                                    <div class="scope-row">
+                                        <div class="scope-meta">
+                                            <strong>read:org</strong>
+                                            <span>Enables scanning of organization members.</span>
+                                        </div>
+                                        <span id="scope-org-badge" class="scope-badge locked">Locked</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- User Public Activity Event Log -->
+                            <div class="glass-panel activity-log-card">
+                                <div class="panel-title">
+                                    <i data-lucide="activity" style="color: var(--primary);"></i> Recent Public Activity Log
+                                </div>
+                                <div id="activity-timeline" class="timeline-container">
+                                    <div class="empty-state" style="padding: 20px;">
+                                        <i data-lucide="history" style="opacity:0.3;"></i>
+                                        <span>No activity events loaded. Sync token to check.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Follow / Unfollow campaigns -->
+                <div id="panel-follow" class="tab-panel">
+                    <div class="dashboard-grid">
+                        <aside class="sidebar glass-panel">
+                            <div class="panel-title">
+                                <i data-lucide="sliders"></i> Parameters
+                            </div>
+                            
+                            <div class="mode-tabs" style="display: flex; background: rgba(0, 0, 0, 0.3); padding: 4px; border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--border-color);">
+                                <button class="btn mode-tab active" id="tab-follow" data-mode="follow" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; width: 50%; font-weight: 600; cursor: pointer; border: none;">Follow Mode</button>
+                                <button class="btn mode-tab" id="tab-unfollow" data-mode="unfollow" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; width: 50%; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--text-muted);">Unfollow Mode</button>
+                            </div>
+
+                            <!-- Follow Mode Settings -->
+                            <div id="follow-settings-group">
+                                <div class="form-group">
+                                    <label for="scraper-source">Candidate Source</label>
+                                    <div class="input-wrapper">
+                                        <i data-lucide="layers"></i>
+                                        <select id="scraper-source" class="form-control">
+                                            <option value="followers">Followers of Target User</option>
+                                            <option value="following">Users Followed by Target User</option>
+                                            <option value="org-members">Organization Members</option>
+                                            <option value="search-query">Custom Search Query</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" id="source-username-group">
+                                    <label id="username-input-label" for="source-username">Target Username</label>
+                                    <div class="input-wrapper">
+                                        <i data-lucide="user"></i>
+                                        <input type="text" id="source-username" class="form-control" placeholder="e.g. torvalds" value="">
+                                    </div>
+                                    <span class="help-text" id="source-help-text">Fetches followers of this user as candidates.</span>
+                                </div>
+                                <div class="form-group" id="source-search-group" style="display: none;">
+                                    <label for="source-search">Search Query</label>
+                                    <div class="input-wrapper">
+                                        <i data-lucide="search"></i>
+                                        <input type="text" id="source-search" class="form-control" placeholder="e.g. location:India language:javascript">
+                                    </div>
+                                    <span class="help-text">Use GitHub Search syntax.</span>
+                                </div>
+                            </div>
+
+                            <!-- Unfollow Mode Settings -->
+                            <div id="unfollow-settings-group" style="display: none;">
+                                <div class="form-group">
+                                    <label for="unfollow-order">Unfollow Order</label>
+                                    <div class="input-wrapper">
+                                        <i data-lucide="arrow-down-narrow-wide"></i>
+                                        <select id="unfollow-order" class="form-control">
+                                            <option value="oldest">Oldest Followed First</option>
+                                            <option value="newest">Newest Followed First</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Unfollow Constraints</label>
+                                    <div style="display: flex; flex-direction: column; gap: 8px; padding: 4px 0;">
+                                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; color: var(--text-main);">
+                                            <input type="checkbox" id="filter-non-followers" checked style="accent-color: var(--primary); cursor: pointer;">
+                                            Only Non-Followers
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; color: var(--text-main);">
+                                            <input type="checkbox" id="filter-inactive" checked style="accent-color: var(--primary); cursor: pointer;">
+                                            Only Inactive
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="activity-threshold-group">
+                                <label id="activity-threshold-label" for="activity-threshold">Preferred Days Back Online</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="clock"></i>
+                                    <select id="activity-threshold" class="form-control">
+                                        <option value="1">Within Last 24 Hours</option>
+                                        <option value="3" selected>Within Last 3 Days</option>
+                                        <option value="7">Within Last 7 Days</option>
+                                        <option value="14">Within Last 14 Days</option>
+                                        <option value="30">Within Last 30 Days</option>
+                                        <option value="90">Within Last 90 Days</option>
+                                        <option value="all">Anytime (Skip Check)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="form-group">
+                                    <label id="goal-input-label" for="follow-goal">Follow Goal</label>
+                                    <input type="number" id="follow-goal" class="form-control no-icon" value="30" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="scan-limit">Scan Limit</label>
+                                    <select id="scan-limit" class="form-control no-icon" style="padding-left: 12px; padding-right: 12px;">
+                                        <option value="100">100</option>
+                                        <option value="500" selected>500</option>
+                                        <option value="1000">1000</option>
+                                        <option value="2000">2000</option>
+                                        <option value="5000">5000</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div class="form-group">
+                                    <label for="concurrency">Workers</label>
+                                    <input type="number" id="concurrency" class="form-control no-icon" value="5" min="1" max="20">
+                                </div>
+                                <div class="form-group">
+                                    <label for="request-delay">Delay (ms)</label>
+                                    <input type="number" id="request-delay" class="form-control no-icon" value="500" min="0">
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 12px;">
+                                <button id="btn-initialize" class="btn btn-primary">
+                                    <i data-lucide="search-code"></i> Gather Candidates
+                                </button>
+                                <button id="btn-load-more" class="btn btn-secondary" disabled style="display: none;">
+                                    <i data-lucide="plus-circle"></i> Load More Candidates
+                                </button>
+                                <div class="campaign-controls">
+                                    <button id="btn-start" class="btn btn-success" disabled>
+                                        <i data-lucide="play"></i> Start Follows
+                                    </button>
+                                    <button id="btn-pause" class="btn btn-secondary" disabled>
+                                        <i data-lucide="pause"></i> Pause
+                                    </button>
+                                </div>
+                                <button id="btn-reset" class="btn btn-danger" disabled>
+                                    <i data-lucide="refresh-cw"></i> Reset Campaign
+                                </button>
+                            </div>
+                        </aside>
+
+                        <div class="main-dashboard">
+                            <!-- HUD Stats Counters -->
+                            <div class="stats-container">
+                                <div class="stat-card glass-panel scanned">
+                                    <div class="stat-header">
+                                        <span>Scanned / Target</span>
+                                        <i data-lucide="eye"></i>
+                                    </div>
+                                    <div class="stat-value"><span id="stat-scanned">0</span><span style="font-size: 1.1rem; color: var(--text-muted); font-weight: 500;"> / <span id="stat-candidates-count">0</span></span></div>
+                                </div>
+                                <div class="stat-card glass-panel followed">
+                                    <div class="stat-header">
+                                        <span id="stat-followed-label">Followed</span>
+                                        <i data-lucide="check-circle-2"></i>
+                                    </div>
+                                    <div class="stat-value" id="stat-followed" style="color: var(--success);">0</div>
+                                </div>
+                                <div class="stat-card glass-panel skipped">
+                                    <div class="stat-header">
+                                        <span>Skipped</span>
+                                        <i data-lucide="arrow-right-circle"></i>
+                                    </div>
+                                    <div class="stat-value" id="stat-skipped" style="color: var(--warning);">0</div>
+                                </div>
+                                <div class="stat-card glass-panel failed">
+                                    <div class="stat-header">
+                                        <span>Failed</span>
+                                        <i data-lucide="x-circle"></i>
+                                    </div>
+                                    <div class="stat-value" id="stat-failed" style="color: var(--danger);">0</div>
+                                </div>
+                            </div>
+
+                            <!-- Progress Track -->
+                            <div class="progress-panel glass-panel">
+                                <div class="progress-header">
+                                    <div class="status-indicator">
+                                        <div id="status-pulse" class="pulse-dot"></div>
+                                        <span id="status-label">Engine Ready</span>
+                                    </div>
+                                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                                        Goal Progress: <span id="progress-percentage">0%</span> (<span id="progress-ratio">0/30</span>)
+                                    </div>
+                                </div>
+                                <div class="progress-track">
+                                    <div id="campaign-progress-bar" class="progress-bar"></div>
+                                </div>
+                            </div>
+
+                            <div class="results-split">
+                                <div class="results-panel glass-panel">
+                                    <div class="panel-header-bar">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i data-lucide="users" style="color: var(--secondary); width: 18px; height: 18px;"></i>
+                                            <span style="font-weight: 700;">Candidates List</span>
+                                        </div>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button id="btn-export-csv" class="btn-inline" style="display: none;"><i data-lucide="download"></i> CSV</button>
+                                            <button id="btn-export-json" class="btn-inline" style="display: none;"><i data-lucide="code-2"></i> JSON</button>
+                                        </div>
+                                    </div>
+                                    <div class="grid-wrapper">
+                                        <div id="empty-results" class="empty-state">
+                                            <i data-lucide="user-search"></i>
+                                            <h3>No Candidates Loaded Yet</h3>
+                                            <p>Configure settings and gather profiles to start.</p>
+                                        </div>
+                                        <div id="candidate-grid-container" class="candidate-grid" style="display: none;"></div>
+                                    </div>
+                                </div>
+                                <div class="console-panel glass-panel">
+                                    <div class="panel-header-bar">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i data-lucide="terminal" style="color: var(--primary);"></i>
+                                            <span style="font-weight: 700; font-family: var(--font-mono); font-size: 0.85rem;">Campaign Console</span>
+                                        </div>
+                                        <button id="btn-clear-console" class="btn-inline">Clear</button>
+                                    </div>
+                                    <div id="console-output" class="console-body">
+                                        <div class="console-line system">[SYSTEM] Awaiting Personal Access Token configuration...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Contribution Booster -->
+                <div id="panel-booster" class="tab-panel">
+                    <div class="booster-layout">
+                        <!-- Controls panel -->
+                        <div class="glass-panel booster-controls">
+                            <div class="panel-title">
+                                <i data-lucide="flame" style="color: var(--danger);"></i> Matrix Booster Control
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+                                Automatically merges commits, reviews, issues, and pull requests inside a private repository (<code>profile-activity-matrix</code>) to balance your profile contribution graphs.
+                            </p>
+                            
+                            <div class="form-group">
+                                <label for="booster-cycles">Activity Cycles to Run</label>
+                                <input type="number" id="booster-cycles" class="form-control no-icon" value="10" min="1" max="1000">
+                                <span class="help-text">Each cycle generates 1 commit, 1 PR, 1 review, 1 issue, and closes them.</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="booster-delay">Cycle Throttle Delay (ms)</label>
+                                <input type="number" id="booster-delay" class="form-control no-icon" value="1000" min="200" max="10000">
+                                <span class="help-text">Prevents secondary API rate limit blocks.</span>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
+                                <button id="btn-start-boost" class="btn btn-primary">
+                                    <i data-lucide="play"></i> Launch Matrix Boost
+                                </button>
+                                <button id="btn-stop-boost" class="btn btn-danger" disabled>
+                                    <i data-lucide="square"></i> Abort Boost
+                                </button>
+                            </div>
+
+                            <div class="booster-stats-hud">
+                                <div class="hud-stat">
+                                    <span class="lbl">Cycles Completed</span>
+                                    <span id="booster-stat-cycles" class="val">0/0</span>
+                                </div>
+                                <div class="hud-stat">
+                                    <span class="lbl">Commits Pushed</span>
+                                    <span id="booster-stat-commits" class="val">0</span>
+                                </div>
+                                <div class="hud-stat">
+                                    <span class="lbl">Issues Logged</span>
+                                    <span id="booster-stat-issues" class="val">0</span>
+                                </div>
+                                <div class="hud-stat">
+                                    <span class="lbl">PRs & Reviews</span>
+                                    <span id="booster-stat-prs" class="val">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Visualization panel -->
+                        <div class="glass-panel booster-monitor">
+                            <div class="panel-title">
+                                <i data-lucide="layout-grid" style="color: var(--success);"></i> Live Activity Matrix Grid
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+                                Real-time simulation of commits lighting up contribution cells in your profile matrix.
+                            </p>
+                            
+                            <!-- Contribution visual mockup grid -->
+                            <div class="matrix-grid-visual" id="matrix-grid-visual">
+                                <!-- 52 columns x 7 rows representing weeks of year -->
+                            </div>
+
+                            <div class="booster-console glass-panel">
+                                <div class="console-header-bar">
+                                    <span>Booster Log Stream</span>
+                                </div>
+                                <div class="console-body" id="booster-console-output" style="height: 180px;">
+                                    <div class="console-line system">[BOOSTER] Idle. Awaiting matrix initialization...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Repositories & Traffic HUD -->
+                <div id="panel-repos" class="tab-panel">
+                    <div class="repos-layout">
+                        <!-- Repos List & Bulk Manager -->
+                        <div class="glass-panel repos-list-section">
+                            <div class="panel-header-bar" style="padding: 0 0 16px 0; border: none;">
+                                <div class="panel-title" style="margin:0;">
+                                    <i data-lucide="folder" style="color: var(--secondary);"></i> Bulk Repository Manager
+                                </div>
+                                <div class="repo-filter-actions">
+                                    <input type="text" id="repo-search" class="form-control" style="width: 200px; padding: 6px 12px 6px 16px;" placeholder="Search repos...">
+                                    <button id="btn-scan-repos" class="btn btn-secondary" style="width:auto; padding: 6px 14px;"><i data-lucide="refresh-cw"></i> Load List</button>
+                                </div>
+                            </div>
+
+                            <!-- Bulk actions floating bar -->
+                            <div id="repos-bulk-bar" class="bulk-actions-bar" style="display: none;">
+                                <span style="font-size: 0.85rem; font-weight: 600;"><span id="repo-select-count">0</span> Repositories Selected</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <button id="btn-bulk-archive" class="btn-inline"><i data-lucide="archive"></i> Archive</button>
+                                    <button id="btn-bulk-unarchive" class="btn-inline"><i data-lucide="archive-restore"></i> Unarchive</button>
+                                    <button id="btn-bulk-delete" class="btn-inline" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.2);"><i data-lucide="trash-2"></i> Delete</button>
+                                </div>
+                            </div>
+
+                            <div class="repos-scroll-wrapper">
+                                <div class="repos-table-header">
+                                    <div style="width: 40px; display:flex; align-items:center; justify-content:center;"><input type="checkbox" id="check-all-repos" style="cursor:pointer;"></div>
+                                    <div style="flex:2;">Repository Name</div>
+                                    <div style="flex:1;">Access</div>
+                                    <div style="flex:1;">Stars</div>
+                                    <div style="flex:1;">Forks</div>
+                                    <div style="width: 120px;">Actions</div>
+                                </div>
+                                <div id="repos-list-container" class="repos-list-container">
+                                    <div class="empty-state">
+                                        <i data-lucide="folder-search" style="opacity:0.3;"></i>
+                                        <span>Click "Load List" to gather repositories from your account.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Traffic Analysis Widget -->
+                        <div class="glass-panel repos-traffic-section">
+                            <div class="panel-title">
+                                <i data-lucide="line-chart" style="color: var(--primary);"></i> Repository Traffic HUD
+                            </div>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+                                Select a repository below to load real-time clone data, unique views, star counts, and referring sites.
+                            </p>
+                            
+                            <div class="form-group">
+                                <label for="traffic-repo-select">Target Repository</label>
+                                <select id="traffic-repo-select" class="form-control" style="padding-left:16px;">
+                                    <option value="">-- No Repository Selected --</option>
+                                </select>
+                            </div>
+
+                            <div id="traffic-empty-state" class="empty-state" style="height: 250px;">
+                                <i data-lucide="bar-chart-3" style="opacity:0.3; width:40px; height:40px;"></i>
+                                <span>Select a synced repository above to fetch traffic metrics.</span>
+                            </div>
+
+                            <div id="traffic-data-container" style="display: none; flex-direction: column; gap: 20px;">
+                                <div class="traffic-metrics-summary">
+                                    <div class="traffic-metric-card">
+                                        <span>Unique Views (14d)</span>
+                                        <strong id="traffic-views-count">0</strong>
+                                    </div>
+                                    <div class="traffic-metric-card">
+                                        <span>Clones (14d)</span>
+                                        <strong id="traffic-clones-count">0</strong>
+                                    </div>
+                                </div>
+                                
+                                <div style="height: 220px; position: relative; width: 100%;">
+                                    <canvas id="traffic-chart"></canvas>
+                                </div>
+
+                                <div class="referrers-section">
+                                    <strong style="font-size: 0.85rem; color: var(--text-muted);">Top Referral Sites</strong>
+                                    <div id="traffic-referrers-list" class="referrers-list">
+                                        <!-- referring sites -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Profile README Builder -->
+                <div id="panel-readme" class="tab-panel">
+                    <div class="readme-layout">
+                        <!-- Editor Sidebar -->
+                        <div class="glass-panel readme-editor">
+                            <div class="panel-title">
+                                <i data-lucide="file-edit" style="color: var(--primary);"></i> README Composer
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="readme-title">Profile Header Title</label>
+                                <input type="text" id="readme-title" class="form-control no-icon" value="Hi there, I'm [Name]! 👋">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="readme-subtitle">Profile Subtitle</label>
+                                <input type="text" id="readme-subtitle" class="form-control no-icon" value="A passionate software engineer from planet Earth.">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="readme-bio">Mini Biography</label>
+                                <textarea id="readme-bio" class="form-control no-icon" style="height: 80px; resize: vertical;">🔭 I’m currently working on open-source projects.&#10;🌱 I’m currently learning cloud architecture.&#10;⚡ Fun fact: I love developing web cockpits.</textarea>
+                            </div>
+
+                            <!-- Social Badges Selector -->
+                            <div class="form-group">
+                                <label>Social Links</label>
+                                <div class="social-input-row" style="display: flex; flex-direction: column; gap: 8px;">
+                                    <input type="text" id="social-linkedin" class="form-control no-icon" style="font-size:0.8rem; padding: 6px 12px;" placeholder="LinkedIn Profile URL">
+                                    <input type="text" id="social-twitter" class="form-control no-icon" style="font-size:0.8rem; padding: 6px 12px;" placeholder="Twitter Profile URL">
+                                    <input type="text" id="social-youtube" class="form-control no-icon" style="font-size:0.8rem; padding: 6px 12px;" placeholder="YouTube Channel URL">
+                                </div>
+                            </div>
+
+                            <!-- Tech Stack Grid Selector -->
+                            <div class="form-group">
+                                <label>Select Tech Stack Icons</label>
+                                <div class="tech-icons-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px;">
+                                    <label class="tech-item"><input type="checkbox" value="javascript" class="tech-checkbox" checked> JS</label>
+                                    <label class="tech-item"><input type="checkbox" value="typescript" class="tech-checkbox" checked> TS</label>
+                                    <label class="tech-item"><input type="checkbox" value="python" class="tech-checkbox" checked> Python</label>
+                                    <label class="tech-item"><input type="checkbox" value="go" class="tech-checkbox"> Go</label>
+                                    <label class="tech-item"><input type="checkbox" value="rust" class="tech-checkbox"> Rust</label>
+                                    <label class="tech-item"><input type="checkbox" value="cpp" class="tech-checkbox"> C++</label>
+                                    <label class="tech-item"><input type="checkbox" value="react" class="tech-checkbox" checked> React</label>
+                                    <label class="tech-item"><input type="checkbox" value="nodejs" class="tech-checkbox" checked> Node</label>
+                                    <label class="tech-item"><input type="checkbox" value="docker" class="tech-checkbox"> Docker</label>
+                                    <label class="tech-item"><input type="checkbox" value="aws" class="tech-checkbox"> AWS</label>
+                                    <label class="tech-item"><input type="checkbox" value="git" class="tech-checkbox" checked> Git</label>
+                                    <label class="tech-item"><input type="checkbox" value="linux" class="tech-checkbox"> Linux</label>
+                                </div>
+                            </div>
+
+                            <!-- Stats Widget Selection -->
+                            <div class="form-group">
+                                <label>Select Profile Metrics Cards</label>
+                                <div style="display: flex; flex-direction: column; gap: 8px; padding: 6px 0;">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">
+                                        <input type="checkbox" id="widget-stats" checked style="accent-color: var(--primary);">
+                                        GitHub Stats Card
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">
+                                        <input type="checkbox" id="widget-languages" checked style="accent-color: var(--primary);">
+                                        Most Used Languages Card
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">
+                                        <input type="checkbox" id="widget-streak" style="accent-color: var(--primary);">
+                                        GitHub Streak Card
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview & Commit Panel -->
+                        <div class="glass-panel readme-preview-area">
+                            <div class="panel-header-bar" style="padding:0 0 16px 0; border:none;">
+                                <div class="panel-title" style="margin:0;">
+                                    <i data-lucide="eye" style="color: var(--success);"></i> Live Markdown Viewport
+                                </div>
+                                <div class="preview-mode-selectors">
+                                    <button id="btn-readme-preview-tab" class="btn-inline active">Preview</button>
+                                    <button id="btn-readme-code-tab" class="btn-inline">Raw Markdown</button>
+                                </div>
+                            </div>
+
+                            <div class="preview-scroll-wrapper">
+                                <!-- HTML Preview Mode -->
+                                <div id="readme-html-preview" class="readme-rendered-output"></div>
+                                <!-- Raw Markdown Editor Mode -->
+                                <textarea id="readme-raw-editor" class="readme-raw-editor" style="display: none;" readonly></textarea>
+                            </div>
+
+                            <div class="publish-readme-footer glass-panel">
+                                <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                                    <i data-lucide="git-branch" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <strong style="font-size: 0.85rem;">Auto-Commit to Profile Repository</strong>
+                                        <p style="font-size: 0.75rem; color: var(--text-muted);">Pushes to <code>github.com/{username}/{username}/README.md</code></p>
+                                    </div>
+                                </div>
+                                <button id="btn-publish-readme" class="btn btn-success" style="width: auto; padding: 10px 20px;">
+                                    <i data-lucide="git-commit"></i> Push README to GitHub
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 6: Issue & PR Manager -->
+                <div id="panel-issues" class="tab-panel">
+                    <div class="glass-panel issues-panel">
+                        <div class="panel-header-bar" style="padding:0 0 16px 0; border:none;">
+                            <div class="panel-title" style="margin:0;">
+                                <i data-lucide="check-square" style="color: var(--primary);"></i> Bulk Issue & PR Triage Dashboard
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button id="btn-scan-issues" class="btn btn-secondary" style="width:auto; padding: 6px 14px;"><i data-lucide="refresh-cw"></i> Load Open Items</button>
+                            </div>
+                        </div>
+
+                        <!-- Bulk actions bar -->
+                        <div id="issues-bulk-bar" class="bulk-actions-bar" style="display: none; margin-bottom: 16px;">
+                            <span style="font-size: 0.85rem; font-weight: 600;"><span id="issue-select-count">0</span> Items Selected</span>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <input type="text" id="bulk-label-input" class="form-control" style="width: 150px; padding: 6px 10px;" placeholder="Add Label...">
+                                <button id="btn-bulk-label" class="btn-inline"><i data-lucide="tag"></i> Apply Label</button>
+                                <button id="btn-bulk-close-issues" class="btn-inline" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.2);"><i data-lucide="x-circle"></i> Close Selected</button>
+                            </div>
+                        </div>
+
+                        <div class="issues-scroll-wrapper">
+                            <div class="issues-table-header">
+                                <div style="width: 40px; display:flex; align-items:center; justify-content:center;"><input type="checkbox" id="check-all-issues" style="cursor:pointer;"></div>
+                                <div style="flex:2;">Issue / PR Title</div>
+                                <div style="flex:1;">Repository</div>
+                                <div style="flex:1;">Type</div>
+                                <div style="flex:1;">Date Opened</div>
+                                <div style="width: 100px;">Action</div>
+                            </div>
+                            <div id="issues-list-container" class="issues-list-container">
+                                <div class="empty-state">
+                                    <i data-lucide="check-circle" style="opacity:0.3;"></i>
+                                    <span>Click "Load Open Items" to scan open issues and PRs across your repositories.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 7: Star & Gist Manager -->
+                <div id="panel-gists" class="tab-panel">
+                    <div class="gists-stars-layout">
+                        <!-- Stars Manager -->
+                        <div class="glass-panel stars-section">
+                            <div class="panel-header-bar" style="padding:0 0 16px 0; border:none;">
+                                <div class="panel-title" style="margin:0;">
+                                    <i data-lucide="star" style="color: var(--warning);"></i> Bulk Star Manager
+                                </div>
+                                <button id="btn-scan-stars" class="btn btn-secondary" style="width:auto; padding: 6px 14px;"><i data-lucide="refresh-cw"></i> Load Stars</button>
+                            </div>
+
+                            <div id="stars-bulk-bar" class="bulk-actions-bar" style="display: none; margin-bottom:12px;">
+                                <span style="font-size:0.85rem; font-weight:600;"><span id="star-select-count">0</span> Selected</span>
+                                <button id="btn-bulk-unstar" class="btn-inline" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.2);"><i data-lucide="star-off"></i> Bulk Unstar</button>
+                            </div>
+
+                            <div class="stars-scroll-wrapper">
+                                <div id="stars-list-container" class="stars-list-container">
+                                    <div class="empty-state">
+                                        <i data-lucide="star" style="opacity:0.3;"></i>
+                                        <span>Click "Load Stars" to fetch your starred repositories.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gists Manager -->
+                        <div class="glass-panel gists-section">
+                            <div class="panel-header-bar" style="padding:0 0 16px 0; border:none;">
+                                <div class="panel-title" style="margin:0;">
+                                    <i data-lucide="code" style="color: var(--secondary);"></i> Bulk Gist Manager
+                                </div>
+                                <button id="btn-scan-gists" class="btn btn-secondary" style="width:auto; padding: 6px 14px;"><i data-lucide="refresh-cw"></i> Load Gists</button>
+                            </div>
+
+                            <div id="gists-bulk-bar" class="bulk-actions-bar" style="display: none; margin-bottom:12px;">
+                                <span style="font-size:0.85rem; font-weight:600;"><span id="gist-select-count">0</span> Selected</span>
+                                <button id="btn-bulk-delete-gists" class="btn-inline" style="background: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.2);"><i data-lucide="trash-2"></i> Bulk Delete</button>
+                            </div>
+
+                            <div class="gists-scroll-wrapper">
+                                <div id="gists-list-container" class="gists-list-container">
+                                    <div class="empty-state">
+                                        <i data-lucide="file-code" style="opacity:0.3;"></i>
+                                        <span>Click "Load Gists" to fetch your personal Gist files.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Credentials / Token Input Modal Dialog -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal glass-panel">
+            <div class="modal-header">
+                <h3 style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="key-round" style="color: var(--primary);"></i>
+                    Configure GitHub Token (PAT)
+                </h3>
+                <button id="btn-close-settings" class="modal-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="pat-input">GitHub Personal Access Token (PAT)</label>
+                <div class="input-wrapper">
+                    <i data-lucide="lock"></i>
+                    <input type="password" id="pat-input" class="form-control" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                </div>
+                <span class="help-text">
+                    For full utility permissions, recommend selecting Classic PAT scopes: <code>repo</code>, <code>delete_repo</code>, <code>gist</code>, <code>user:follow</code>, <code>read:org</code>.
+                </span>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 10px;">
+                <button id="btn-save-token" class="btn btn-primary">
+                    <i data-lucide="save"></i> Validate & Save Token
+                </button>
+                <button id="btn-cancel-token" class="btn btn-secondary">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Delete Confirmation Modal Dialog -->
+    <div id="delete-confirm-modal" class="modal-overlay" style="z-index: 1100;">
+        <div class="modal glass-panel" style="border-color: rgba(239, 68, 68, 0.4); max-width: 440px;">
+            <div class="modal-header" style="color: var(--danger);">
+                <h3 style="display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="alert-triangle"></i>
+                    CRITICAL WARNING: Bulk Delete
+                </h3>
+            </div>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main); margin-bottom: 16px;">
+                You are about to delete <strong id="delete-count-text">0</strong> items permanently from your GitHub account. This operation is **IRREVERSIBLE** and cannot be undone.
+            </p>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="delete-confirm-input" style="color: var(--text-muted); font-size: 0.8rem;">Type <strong>CONFIRM BULK DELETE</strong> to confirm:</label>
+                <input type="text" id="delete-confirm-input" class="form-control no-icon" style="border-color: rgba(239, 68, 68, 0.3); text-align: center; font-weight: 700; letter-spacing: 0.5px;" placeholder="CONFIRM BULK DELETE">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button id="btn-execute-delete" class="btn btn-danger" disabled style="flex:1;">
+                    Yes, Permanently Delete
+                </button>
+                <button id="btn-cancel-delete" class="btn btn-secondary" style="flex:1;">
+                    Cancel Operation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
