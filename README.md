@@ -38,7 +38,7 @@ version: 1.0
 type: Repository
 author: VarshuAi
 description: >
-  A premium cyberpunk glassmorphic dashboard for managing GitHub profiles, campaigns, traffic, and repositories.
+  name: github-ultimate-power-suite version: 1.0 type: Repository author: VarshuAi description: >   A premium cyberpunk glassmorphic dashboard for managing GitHub profiles, campaigns, traffic, and repositories. primary_tech: JavaScript
 primary_tech: JavaScript
 ```
 
